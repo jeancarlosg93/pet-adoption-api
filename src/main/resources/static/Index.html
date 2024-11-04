@@ -1,0 +1,217 @@
+<!-- Save this as src/main/resources/static/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Adoption API Test Console</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/base.min.css"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.`com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 p-8">
+<div class="max-w-4xl mx-auto">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg rounded-lg mb-8 p-4">
+        <div class="flex justify-between items-center">
+            <h1 class="text-3xl font-bold">Pet Adoption API Console</h1>
+            <div class="space-x-4">
+                <a href="/swagger-ui.html" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                    <i class="fas fa-book"></i> Swagger UI
+                </a>
+                <a href="/h2-console" target="_blank" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                    <i class="fas fa-database"></i> H2 Console
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Tabs -->
+    <div class="mb-8">
+        <div class="flex space-x-4">
+            <button onclick="showTab('pets')" id="petsTab" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Pets</button>
+            <button onclick="showTab('fosters')" id="fostersTab" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Fosters</button>
+            <button onclick="showTab('assignments')" id="assignmentsTab" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Assignments</button>
+        </div>
+    </div>
+
+    <!-- Pet Management Section -->
+    <div id="petsSection" class="tab-content bg-white p-6 rounded-lg shadow-md mb-8">
+        <!-- [Previous Pet Management HTML content] -->
+    </div>
+
+    <!-- Foster Management Section -->
+    <div id="fostersSection" class="tab-content bg-white p-6 rounded-lg shadow-md mb-8" style="display: none;">
+        <!-- [Previous Foster Management HTML content] -->
+    </div>
+
+    <!-- Assign Pet to Foster Section -->
+    <div id="assignmentsSection" class="tab-content bg-white p-6 rounded-lg shadow-md" style="display: none;">
+        <!-- [Previous Assignment HTML content] -->
+    </div>
+</div>
+
+<script>
+    // Since we're serving from the same origin, we can simplify the API_BASE_URL
+    const API_BASE_URL = '/api/v1';
+
+    // Tab Management
+    function showTab(tabName) {
+        // Hide all sections
+        document.querySelectorAll('.tab-content').forEach(section => {
+            section.style.display = 'none';
+        });
+
+        // Reset all tab buttons
+        document.querySelectorAll('button[id$="Tab"]').forEach(button => {
+            button.classList.remove('bg-blue-500');
+            button.classList.add('bg-gray-500');
+        });
+
+        // Show selected section
+        document.getElementById(`${tabName}Section`).style.display = 'block';
+
+        // Highlight selected tab
+        document.getElementById(`${tabName}Tab`).classList.remove('bg-gray-500');
+        document.getElementById(`${tabName}Tab`).classList.add('bg-blue-500');
+    }
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api/v1';
+
+        // Helper function to handle API responses
+        async function handleResponse(response) {
+        if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'An error occurred');
+    }
+        return response.json();
+    }
+
+        // Helper function to display results
+        function displayResult(elementId, data) {
+        const element = document.getElementById(elementId);
+        element.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+    }
+
+        // Add Pet Form Handler
+        document.getElementById('addPetForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const petData = Object.fromEntries(formData.entries());
+
+        try {
+        const response = await fetch(`${API_BASE_URL}/pets`, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+    },
+        body: JSON.stringify(petData)
+    });
+        const result = await handleResponse(response);
+        displayResult('petsResult', result);
+        e.target.reset();
+    } catch (error) {
+        displayResult('petsResult', {error: error.message});
+    }
+    });
+
+        // Add Foster Form Handler
+        document.getElementById('addFosterForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const fosterData = Object.fromEntries(formData.entries());
+
+        try {
+        const response = await fetch(`${API_BASE_URL}/fosters`, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+    },
+        body: JSON.stringify(fosterData)
+    });
+        const result = await handleResponse(response);
+        displayResult('fostersResult', result);
+        e.target.reset();
+    } catch (error) {
+        displayResult('fostersResult', {error: error.message});
+    }
+    });
+
+        // Assign Pet Form Handler
+        document.getElementById('assignPetForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const {fosterId, petId} = Object.fromEntries(formData.entries());
+
+        try {
+        const response = await fetch(`${API_BASE_URL}/fosters/${fosterId}/pets/${petId}`, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+    }
+    });
+        const result = await handleResponse(response);
+        displayResult('assignmentResult', result);
+        e.target.reset();
+    } catch (error) {
+        displayResult('assignmentResult', {error: error.message});
+    }
+    });
+
+        // Get All Pets
+        async function getAllPets() {
+        try {
+        const response = await fetch(`${API_BASE_URL}/pets`);
+        const result = await handleResponse(response);
+        displayResult('petsResult', result);
+    } catch (error) {
+        displayResult('petsResult', {error: error.message});
+    }
+    }
+
+        // Get Available Pets
+        async function getAvailablePets() {
+        try {
+        const response = await fetch(`${API_BASE_URL}/pets/available`);
+        const result = await handleResponse(response);
+        displayResult('petsResult', result);
+    } catch (error) {
+        displayResult('petsResult', {error: error.message});
+    }
+    }
+
+        // Get Pets Needing Foster
+        async function getPetsNeedingFoster() {
+        try {
+        const response = await fetch(`${API_BASE_URL}/pets/needs-foster`);
+        const result = await handleResponse(response);
+        displayResult('petsResult', result);
+    } catch (error) {
+        displayResult('petsResult', {error: error.message});
+    }
+    }
+
+        // Get All Fosters
+        async function getAllFosters() {
+        try {
+        const response = await fetch(`${API_BASE_URL}/fosters`);
+        const result = await handleResponse(response);
+        displayResult('fostersResult', result);
+    } catch (error) {
+        displayResult('fostersResult', {error: error.message});
+    }
+    }
+
+        // Get Available Fosters
+        async function getAvailableFosters() {
+        try {
+        const response = await fetch(`${API_BASE_URL}/fosters/available`);
+        const result = await handleResponse(response);
+        displayResult('fostersResult', result);
+    } catch (error) {
+        displayResult('fostersResult', {error: error.message});
+    }
+    }
+</script>
+</body>
+</html>

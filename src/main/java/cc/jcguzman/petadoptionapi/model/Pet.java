@@ -55,6 +55,7 @@ public class Pet {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "foster_id")
     @JsonIgnoreProperties({"petsAssigned", "hibernateLazyInitializer"})
+    @JsonIgnore
     @ToString.Exclude
     private Foster currentFoster;
 
