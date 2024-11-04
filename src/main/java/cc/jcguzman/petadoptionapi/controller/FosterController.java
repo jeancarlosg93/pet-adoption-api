@@ -37,21 +37,33 @@ public class FosterController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successfully retrieved all fosters",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Fosters.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Fosters.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Fosters.class)
+                            )
+                    }
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal server error",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Internal server error\"}")
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Internal server error\"}")
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(example = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><error><timestamp>2024-11-04T10:00:00</timestamp><message>Internal server error</message></error>")
+                            )
+                    }
             )
     })
-    @GetMapping
+    @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<Fosters> getAllFosters() {
         List<Foster> fosterList = fosterService.getAllFosters();
         return ResponseEntity.ok(new Fosters(fosterList));
@@ -65,21 +77,33 @@ public class FosterController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Foster found successfully",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Foster.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Foster.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Foster.class)
+                            )
+                    }
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "Foster not found",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Foster not found with id: 123\"}")
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Foster not found with id: 123\"}")
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(example = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><error><timestamp>2024-11-04T10:00:00</timestamp><message>Foster not found with id: 123</message></error>")
+                            )
+                    }
             )
     })
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<Foster> getFosterById(
             @Parameter(description = "ID of the foster to retrieve", example = "1", required = true)
             @PathVariable Long id) {
@@ -95,13 +119,19 @@ public class FosterController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successfully retrieved active fosters",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Fosters.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Fosters.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Fosters.class)
+                            )
+                    }
             )
     })
-    @GetMapping("/active")
+    @GetMapping(value = "/active", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<Fosters> getActiveFosters() {
         List<Foster> activeFosters = fosterService.getActiveFosters();
         return ResponseEntity.ok(new Fosters(activeFosters));
@@ -115,13 +145,19 @@ public class FosterController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successfully retrieved available fosters",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Fosters.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Fosters.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Fosters.class)
+                            )
+                    }
             )
     })
-    @GetMapping("/available")
+    @GetMapping(value = "/available", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<Fosters> getAvailableFosters() {
         List<Foster> availableFosters = fosterService.getAvailableFosters();
         return ResponseEntity.ok(new Fosters(availableFosters));
@@ -135,49 +171,66 @@ public class FosterController {
             @ApiResponse(
                     responseCode = "201",
                     description = "Foster created successfully",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Foster.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Foster.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Foster.class)
+                            )
+                    }
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid input data",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Validation failed\"}")
-                    )
+                    description = "Invalid input data"
             ),
             @ApiResponse(
                     responseCode = "409",
-                    description = "Email already registered",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Email already registered\"}")
-                    )
+                    description = "Email already registered"
             )
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true,
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = Foster.class),
-                    examples = @ExampleObject(
-                            value = """
-                            {
-                                "Name": "John",
-                                "Last Name": "Doe",
-                                "Email": "john.doe@example.com",
-                                "Phone": "555-0123",
-                                "Address": "123 Main St",
-                                "MaxPets": 3,
-                                "Active": true
-                            }
-                            """
+            content = {
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = Foster.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "Name": "John",
+                                        "Last Name": "Doe",
+                                        "Email": "john.doe@example.com",
+                                        "Phone": "555-0123",
+                                        "Address": "123 Main St",
+                                        "MaxPets": 3,
+                                        "Active": true
+                                    }
+                                    """)
+                    ),
+                    @Content(
+                            mediaType = MediaType.APPLICATION_XML_VALUE,
+                            schema = @Schema(implementation = Foster.class),
+                            examples = @ExampleObject(value = """
+                                    <?xml version="1.0" encoding="UTF-8"?>
+                                    <Foster>
+                                        <Name>John</Name>
+                                        <LastName>Doe</LastName>
+                                        <Email>john.doe@example.com</Email>
+                                        <Phone>555-0123</Phone>
+                                        <Address>123 Main St</Address>
+                                        <MaxPets>3</MaxPets>
+                                        <Active>true</Active>
+                                    </Foster>
+                                    """)
                     )
-            )
+            }
     )
-    @PostMapping
+    @PostMapping(
+            consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
     public ResponseEntity<Foster> createFoster(@Valid @RequestBody Foster foster) {
         Foster createdFoster = fosterService.createFoster(foster);
         return new ResponseEntity<>(createdFoster, HttpStatus.CREATED);
@@ -191,28 +244,24 @@ public class FosterController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Foster updated successfully",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Foster.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Foster.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Foster.class)
+                            )
+                    }
             ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Foster not found",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Foster not found with id: 123\"}")
-                    )
-            )
+            @ApiResponse(responseCode = "404", description = "Foster not found")
     })
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            required = true,
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = Foster.class)
-            )
+    @PutMapping(
+            value = "/{id}",
+            consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
     )
-    @PutMapping("/{id}")
     public ResponseEntity<Foster> updateFoster(
             @Parameter(description = "ID of the foster to update", example = "1", required = true)
             @PathVariable Long id,
@@ -226,18 +275,8 @@ public class FosterController {
             description = "Deactivates a foster caregiver (soft delete) and removes all pet assignments"
     )
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "Foster deactivated successfully"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Foster not found",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Foster not found with id: 123\"}")
-                    )
-            )
+            @ApiResponse(responseCode = "204", description = "Foster deactivated successfully"),
+            @ApiResponse(responseCode = "404", description = "Foster not found")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deactivateFoster(
@@ -255,29 +294,24 @@ public class FosterController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Pet assigned successfully",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Foster.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Foster.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Foster.class)
+                            )
+                    }
             ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Foster or pet not found",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Foster/Pet not found\"}")
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Foster cannot accept more pets or is inactive",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Foster has reached maximum pet capacity\"}")
-                    )
-            )
+            @ApiResponse(responseCode = "404", description = "Foster or pet not found"),
+            @ApiResponse(responseCode = "400", description = "Foster cannot accept more pets or is inactive")
     })
-    @PostMapping("/{fosterId}/pets/{petId}")
+    @PostMapping(
+            value = "/{fosterId}/pets/{petId}",
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
     public ResponseEntity<Foster> assignPetToFoster(
             @Parameter(description = "ID of the foster", example = "1", required = true)
             @PathVariable Long fosterId,
@@ -295,29 +329,24 @@ public class FosterController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Pet removed successfully",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Foster.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Foster.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Foster.class)
+                            )
+                    }
             ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Foster or pet not found",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Foster/Pet not found\"}")
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Pet is not assigned to this foster",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"This pet is not assigned to this foster\"}")
-                    )
-            )
+            @ApiResponse(responseCode = "404", description = "Foster or pet not found"),
+            @ApiResponse(responseCode = "400", description = "Pet is not assigned to this foster")
     })
-    @DeleteMapping("/{fosterId}/pets/{petId}")
+    @DeleteMapping(
+            value = "/{fosterId}/pets/{petId}",
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
     public ResponseEntity<Foster> unassignPetFromFoster(
             @Parameter(description = "ID of the foster", example = "1", required = true)
             @PathVariable Long fosterId,

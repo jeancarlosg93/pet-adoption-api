@@ -25,7 +25,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Pet Management", description = "APIs for managing pets in the adoption system")
 @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "ApiKey")
-
 public class PetController {
 
     private final PetService petService;
@@ -38,18 +37,33 @@ public class PetController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successfully retrieved all pets",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Pets.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Pets.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Pets.class)
+                            )
+                    }
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal server error",
-                    content = @Content(schema = @Schema(hidden = true))
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Internal server error\"}")
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(example = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><error><timestamp>2024-11-04T10:00:00</timestamp><message>Internal server error</message></error>")
+                            )
+                    }
             )
     })
-    @GetMapping
+    @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<Pets> getAllPets() {
         try {
             List<Pet> petList = petService.getAllPets();
@@ -67,23 +81,33 @@ public class PetController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Pet found successfully",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Pet.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Pet.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Pet.class)
+                            )
+                    }
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "Pet not found",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(
-                                    example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Pet not found with id: 123\"}"
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Pet not found with id: 123\"}")
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(example = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><error><timestamp>2024-11-04T10:00:00</timestamp><message>Pet not found with id: 123</message></error>")
                             )
-                    )
+                    }
             )
     })
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<Pet> getPetById(
             @Parameter(description = "ID of the pet to retrieve", example = "1", required = true)
             @PathVariable Long id) {
@@ -98,13 +122,19 @@ public class PetController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successfully retrieved available pets",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Pets.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Pets.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Pets.class)
+                            )
+                    }
             )
     })
-    @GetMapping("/available")
+    @GetMapping(value = "/available", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<Pets> getAvailablePets() {
         List<Pet> availablePets = petService.getAvailablePets();
         return ResponseEntity.ok(Pets.of(availablePets));
@@ -118,13 +148,19 @@ public class PetController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successfully retrieved pets by species",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Pets.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Pets.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Pets.class)
+                            )
+                    }
             )
     })
-    @GetMapping("/species/{species}")
+    @GetMapping(value = "/species/{species}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<Pets> getPetsBySpecies(
             @Parameter(description = "Species to filter by",
                     example = "Dog",
@@ -143,13 +179,19 @@ public class PetController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successfully retrieved pets needing foster",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Pets.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Pets.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Pets.class)
+                            )
+                    }
             )
     })
-    @GetMapping("/needs-foster")
+    @GetMapping(value = "/needs-foster", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<Pets> getPetsNeedingFoster() {
         List<Pet> pets = petService.getPetsNeedingFoster();
         return ResponseEntity.ok(Pets.of(pets));
@@ -163,43 +205,80 @@ public class PetController {
             @ApiResponse(
                     responseCode = "201",
                     description = "Pet created successfully",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Pet.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Pet.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Pet.class)
+                            )
+                    }
             ),
             @ApiResponse(
                     responseCode = "400",
                     description = "Invalid input data",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Validation failed\"}")
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Validation failed\"}")
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(example = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><error><timestamp>2024-11-04T10:00:00</timestamp><message>Validation failed</message></error>")
+                            )
+                    }
             )
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true,
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = Pet.class),
-                    examples = @ExampleObject(
-                            value = """
-                            {
-                                "Name": "Max",
-                                "Species": "Dog",
-                                "Breed": "Labrador",
-                                "Temperament": "Friendly",
-                                "Age": 3,
-                                "Gender": "Male",
-                                "Weight": 25.5,
-                                "Color": "Golden",
-                                "Adoption_Fee": 200.0
-                            }
-                            """
+            content = {
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = Pet.class),
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                                "Name": "Max",
+                                                "Species": "Dog",
+                                                "Breed": "Labrador",
+                                                "Temperament": "Friendly",
+                                                "Age": 3,
+                                                "Gender": "Male",
+                                                "Weight": 25.5,
+                                                "Color": "Golden",
+                                                "Adoption_Fee": 200.0
+                                            }
+                                            """
+                            )
+                    ),
+                    @Content(
+                            mediaType = MediaType.APPLICATION_XML_VALUE,
+                            schema = @Schema(implementation = Pet.class),
+                            examples = @ExampleObject(
+                                    value = """
+                                            <?xml version="1.0" encoding="UTF-8"?>
+                                            <Pet>
+                                                <Name>Max</Name>
+                                                <Species>Dog</Species>
+                                                <Breed>Labrador</Breed>
+                                                <Temperament>Friendly</Temperament>
+                                                <Age>3</Age>
+                                                <Gender>Male</Gender>
+                                                <Weight>25.5</Weight>
+                                                <Color>Golden</Color>
+                                                <AdoptionFee>200.0</AdoptionFee>
+                                            </Pet>
+                                            """
+                            )
                     )
-            )
+            }
     )
-    @PostMapping
+    @PostMapping(
+            consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
     public ResponseEntity<Pet> createPet(@Valid @RequestBody Pet pet) {
         Pet createdPet = petService.createPet(pet);
         return new ResponseEntity<>(createdPet, HttpStatus.CREATED);
@@ -213,18 +292,37 @@ public class PetController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Pet updated successfully",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Pet.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Pet.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Pet.class)
+                            )
+                    }
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "Pet not found",
-                    content = @Content(schema = @Schema(hidden = true))
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Pet not found with id: 123\"}")
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(example = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><error><timestamp>2024-11-04T10:00:00</timestamp><message>Pet not found with id: 123</message></error>")
+                            )
+                    }
             )
     })
-    @PutMapping("/{id}")
+    @PutMapping(
+            value = "/{id}",
+            consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
     public ResponseEntity<Pet> updatePet(
             @Parameter(description = "ID of the pet to update", example = "1", required = true)
             @PathVariable Long id,
@@ -240,18 +338,36 @@ public class PetController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Pet status updated successfully",
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Pet.class)
-                    )
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Pet.class)
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(implementation = Pet.class)
+                            )
+                    }
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "Pet not found",
-                    content = @Content(schema = @Schema(hidden = true))
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Pet not found with id: 123\"}")
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(example = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><error><timestamp>2024-11-04T10:00:00</timestamp><message>Pet not found with id: 123</message></error>")
+                            )
+                    }
             )
     })
-    @PutMapping("/{id}/status")
+    @PutMapping(
+            value = "/{id}/status",
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
     public ResponseEntity<Pet> updatePetStatus(
             @Parameter(description = "ID of the pet to update", example = "1", required = true)
             @PathVariable Long id,
@@ -274,7 +390,16 @@ public class PetController {
             @ApiResponse(
                     responseCode = "404",
                     description = "Pet not found",
-                    content = @Content(schema = @Schema(hidden = true))
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Pet not found with id: 123\"}")
+                            ),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML_VALUE,
+                                    schema = @Schema(example = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><error><timestamp>2024-11-04T10:00:00</timestamp><message>Pet not found with id: 123</message></error>")
+                            )
+                    }
             )
     })
     @DeleteMapping("/{id}")
