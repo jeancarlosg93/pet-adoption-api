@@ -1,10 +1,10 @@
 package cc.jcguzman.petadoptionapi.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -56,6 +56,8 @@ public class Pet {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "foster_id")
     @JsonProperty("Current_Foster")
+    @ToString.Exclude
+    @JsonIdentityReference(alwaysAsId = true)
     private Foster currentFoster;
 
     @Enumerated(EnumType.STRING)
@@ -67,6 +69,11 @@ public class Pet {
         AVAILABLE,
         ADOPTED,
         REMOVED
+    }
+
+    @JsonProperty("Foster_Id")
+    public UUID getFosterId() {
+        return currentFoster != null ? currentFoster.getId() : null;
     }
 
     public void remove() {

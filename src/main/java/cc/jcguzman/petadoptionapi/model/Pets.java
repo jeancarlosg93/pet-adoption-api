@@ -6,20 +6,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Pets {
 
-    @JsonProperty("Pets")
+    @JsonProperty("pets")
     private List<Pet> petList;
 
-    // For backward compatibility
-    public Pets(HashMap<UUID, Pet> pets) {
-        this.petList = new ArrayList<>(pets.values());
+    public static Pets of(List<Pet> pets) {
+        return new Pets(new ArrayList<>(pets));
     }
 }

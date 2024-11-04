@@ -1,12 +1,13 @@
 package cc.jcguzman.petadoptionapi.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ public class Foster extends User {
 
     @OneToMany(mappedBy = "currentFoster", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonProperty("AssignedPets")
+    @ToString.Exclude
+    @JsonIgnoreProperties("currentFoster")
     private List<Pet> petsAssigned = new ArrayList<>();
 
     public void unassignPet(Pet pet) {
@@ -50,6 +53,7 @@ public class Foster extends User {
         if (canAcceptMorePets()) {
             petsAssigned.add(pet);
             pet.setCurrentFoster(this);
+            pet.setCurrentStatus(Pet.Status.FOSTERED);
         } else {
             throw new IllegalStateException("Foster cannot accept more pets");
         }
