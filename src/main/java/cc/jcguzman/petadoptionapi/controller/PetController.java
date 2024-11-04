@@ -6,6 +6,7 @@ import cc.jcguzman.petadoptionapi.service.PetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -23,13 +24,15 @@ import java.util.List;
 @RequestMapping("/api/v1/pets")
 @RequiredArgsConstructor
 @Tag(name = "Pet Management", description = "APIs for managing pets in the adoption system")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "ApiKey")
+
 public class PetController {
 
     private final PetService petService;
 
     @Operation(
             summary = "Get all pets",
-            description = "Retrieves a list of all pets in the system"
+            description = "Retrieves a list of all pets in the system, including their details and current status"
     )
     @ApiResponses({
             @ApiResponse(
@@ -58,7 +61,7 @@ public class PetController {
 
     @Operation(
             summary = "Get pet by ID",
-            description = "Retrieves a specific pet by their ID"
+            description = "Retrieves detailed information about a specific pet using their unique identifier"
     )
     @ApiResponses({
             @ApiResponse(
@@ -72,19 +75,24 @@ public class PetController {
             @ApiResponse(
                     responseCode = "404",
                     description = "Pet not found",
-                    content = @Content(schema = @Schema(hidden = true))
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(
+                                    example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Pet not found with id: 123\"}"
+                            )
+                    )
             )
     })
     @GetMapping("/{id}")
     public ResponseEntity<Pet> getPetById(
-            @Parameter(description = "ID of the pet to retrieve")
+            @Parameter(description = "ID of the pet to retrieve", example = "1", required = true)
             @PathVariable Long id) {
         return ResponseEntity.ok(petService.getPetById(id));
     }
 
     @Operation(
             summary = "Get available pets",
-            description = "Retrieves a list of all available pets for adoption"
+            description = "Retrieves a list of all pets currently available for adoption"
     )
     @ApiResponses({
             @ApiResponse(
@@ -104,7 +112,7 @@ public class PetController {
 
     @Operation(
             summary = "Get pets by species",
-            description = "Retrieves a list of pets filtered by species"
+            description = "Retrieves a list of pets filtered by their species (e.g., Dog, Cat, Bird, etc.)"
     )
     @ApiResponses({
             @ApiResponse(
@@ -118,7 +126,10 @@ public class PetController {
     })
     @GetMapping("/species/{species}")
     public ResponseEntity<Pets> getPetsBySpecies(
-            @Parameter(description = "Species to filter by (e.g., 'Dog', 'Cat')")
+            @Parameter(description = "Species to filter by",
+                    example = "Dog",
+                    schema = @Schema(allowableValues = {"Dog", "Cat", "Bird", "Rabbit"}),
+                    required = true)
             @PathVariable String species) {
         List<Pet> pets = petService.getPetsBySpecies(species);
         return ResponseEntity.ok(Pets.of(pets));
@@ -126,7 +137,7 @@ public class PetController {
 
     @Operation(
             summary = "Get pets needing foster",
-            description = "Retrieves a list of pets that need fostering"
+            description = "Retrieves a list of pets that currently need fostering (no assigned foster)"
     )
     @ApiResponses({
             @ApiResponse(
@@ -146,7 +157,7 @@ public class PetController {
 
     @Operation(
             summary = "Create new pet",
-            description = "Creates a new pet in the system"
+            description = "Creates a new pet entry in the system with the provided details"
     )
     @ApiResponses({
             @ApiResponse(
@@ -160,20 +171,43 @@ public class PetController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Invalid input data",
-                    content = @Content(schema = @Schema(hidden = true))
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(example = "{\"timestamp\":\"2024-11-04T10:00:00\",\"message\":\"Validation failed\"}")
+                    )
             )
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true,
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = Pet.class),
+                    examples = @ExampleObject(
+                            value = """
+                            {
+                                "Name": "Max",
+                                "Species": "Dog",
+                                "Breed": "Labrador",
+                                "Temperament": "Friendly",
+                                "Age": 3,
+                                "Gender": "Male",
+                                "Weight": 25.5,
+                                "Color": "Golden",
+                                "Adoption_Fee": 200.0
+                            }
+                            """
+                    )
+            )
+    )
     @PostMapping
-    public ResponseEntity<Pet> createPet(
-            @Parameter(description = "Pet details", required = true)
-            @Valid @RequestBody Pet pet) {
+    public ResponseEntity<Pet> createPet(@Valid @RequestBody Pet pet) {
         Pet createdPet = petService.createPet(pet);
         return new ResponseEntity<>(createdPet, HttpStatus.CREATED);
     }
 
     @Operation(
             summary = "Update pet",
-            description = "Updates an existing pet's information"
+            description = "Updates an existing pet's information with the provided details"
     )
     @ApiResponses({
             @ApiResponse(
@@ -192,16 +226,15 @@ public class PetController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<Pet> updatePet(
-            @Parameter(description = "ID of the pet to update")
+            @Parameter(description = "ID of the pet to update", example = "1", required = true)
             @PathVariable Long id,
-            @Parameter(description = "Updated pet details", required = true)
             @Valid @RequestBody Pet petDetails) {
         return ResponseEntity.ok(petService.updatePet(id, petDetails));
     }
 
     @Operation(
             summary = "Update pet status",
-            description = "Updates the status of an existing pet"
+            description = "Updates the status of an existing pet (e.g., AVAILABLE, FOSTERED, ADOPTED, REMOVED)"
     )
     @ApiResponses({
             @ApiResponse(
@@ -220,16 +253,18 @@ public class PetController {
     })
     @PutMapping("/{id}/status")
     public ResponseEntity<Pet> updatePetStatus(
-            @Parameter(description = "ID of the pet to update")
+            @Parameter(description = "ID of the pet to update", example = "1", required = true)
             @PathVariable Long id,
-            @Parameter(description = "New status", required = true)
+            @Parameter(description = "New status",
+                    schema = @Schema(implementation = Pet.Status.class),
+                    required = true)
             @RequestParam Pet.Status status) {
         return ResponseEntity.ok(petService.updatePetStatus(id, status));
     }
 
     @Operation(
             summary = "Remove pet",
-            description = "Removes a pet from the system"
+            description = "Removes a pet from the system (soft delete - updates status to REMOVED)"
     )
     @ApiResponses({
             @ApiResponse(
@@ -244,7 +279,7 @@ public class PetController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> removePet(
-            @Parameter(description = "ID of the pet to remove")
+            @Parameter(description = "ID of the pet to remove", example = "1", required = true)
             @PathVariable Long id) {
         petService.removePet(id);
         return ResponseEntity.noContent().build();
