@@ -1,217 +1,299 @@
-<!-- Save this as src/main/resources/static/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pet Adoption API Test Console</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/base.min.css"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.`com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Pet Adoption API Console</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 p-8">
-<div class="max-w-4xl mx-auto">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg rounded-lg mb-8 p-4">
-        <div class="flex justify-between items-center">
-            <h1 class="text-3xl font-bold">Pet Adoption API Console</h1>
-            <div class="space-x-4">
-                <a href="/swagger-ui.html" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
-                    <i class="fas fa-book"></i> Swagger UI
-                </a>
-                <a href="/h2-console" target="_blank" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                    <i class="fas fa-database"></i> H2 Console
-                </a>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="#">Pet Adoption API Console</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#petsSection">Pets</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#fostersSection">Fosters</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#apiKeysSection">API Keys</a>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <a href="/swagger-ui.html" class="btn btn-success me-2">Swagger UI</a>
+                <a href="/h2-console" class="btn btn-info" target="_blank">H2 Console</a>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- Tabs -->
-    <div class="mb-8">
-        <div class="flex space-x-4">
-            <button onclick="showTab('pets')" id="petsTab" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Pets</button>
-            <button onclick="showTab('fosters')" id="fostersTab" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Fosters</button>
-            <button onclick="showTab('assignments')" id="assignmentsTab" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Assignments</button>
+<div class="container">
+    <!-- API Key Management Section -->
+    <section id="apiKeysSection" class="mb-5">
+        <h2 class="mb-4">API Key Management</h2>
+
+        <!-- Generate API Key Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Generate New API Key</h5>
+            </div>
+            <div class="card-body">
+                <form id="generateKeyForm">
+                    <div class="mb-3">
+                        <label for="keyDescription" class="form-label">Description (5-200 characters)</label>
+                        <input type="text" class="form-control" id="keyDescription" required
+                               minlength="5" maxlength="200"
+                               placeholder="Development Testing Key">
+                    </div>
+                    <div class="mb-3">
+                        <label for="keyCreator" class="form-label">Creator</label>
+                        <input type="email" class="form-control" id="keyCreator" required
+                               placeholder="john.doe@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="validityDays" class="form-label">Validity (days)</label>
+                        <input type="number" class="form-control" id="validityDays" min="1" max="365"
+                               placeholder="30">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Key</button>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <!-- Pet Management Section -->
-    <div id="petsSection" class="tab-content bg-white p-6 rounded-lg shadow-md mb-8">
-        <!-- [Previous Pet Management HTML content] -->
-    </div>
+        <!-- List API Keys -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">API Keys</h5>
+                <button class="btn btn-warning btn-sm">Clean Up Expired Keys</button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Key</th>
+                            <th>Description</th>
+                            <th>Created By</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="apiKeysList">
+                        <!-- API keys will be listed here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <!-- Foster Management Section -->
-    <div id="fostersSection" class="tab-content bg-white p-6 rounded-lg shadow-md mb-8" style="display: none;">
-        <!-- [Previous Foster Management HTML content] -->
-    </div>
+    <!-- Pets Section -->
+    <section id="petsSection" class="mb-5">
+        <h2 class="mb-4">Pet Management</h2>
 
-    <!-- Assign Pet to Foster Section -->
-    <div id="assignmentsSection" class="tab-content bg-white p-6 rounded-lg shadow-md" style="display: none;">
-        <!-- [Previous Assignment HTML content] -->
-    </div>
+        <!-- Create Pet Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Add New Pet</h5>
+            </div>
+            <div class="card-body">
+                <form id="createPetForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="petName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="petName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="petSpecies" class="form-label">Species</label>
+                                <select class="form-select" id="petSpecies" required>
+                                    <option value="Dog">Dog</option>
+                                    <option value="Cat">Cat</option>
+                                    <option value="Bird">Bird</option>
+                                    <option value="Rabbit">Rabbit</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="petBreed" class="form-label">Breed</label>
+                                <input type="text" class="form-control" id="petBreed">
+                            </div>
+                            <div class="mb-3">
+                                <label for="petAge" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="petAge" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="petGender" class="form-label">Gender</label>
+                                <select class="form-select" id="petGender" required>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="petWeight" class="form-label">Weight (kg)</label>
+                                <input type="number" step="0.1" class="form-control" id="petWeight" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="petColor" class="form-label">Color</label>
+                                <input type="text" class="form-control" id="petColor" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="petAdoptionFee" class="form-label">Adoption Fee ($)</label>
+                                <input type="number" step="0.01" class="form-control" id="petAdoptionFee" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="petTemperament" class="form-label">Temperament</label>
+                                <textarea class="form-control" id="petTemperament" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Pet</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- List Pets -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Pets List</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary">All Pets</button>
+                        <button class="btn btn-outline-primary">Available</button>
+                        <button class="btn btn-outline-primary">Needs Foster</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Species</th>
+                            <th>Age</th>
+                            <th>Status</th>
+                            <th>Foster</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="petsList">
+                        <!-- Pets will be listed here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fosters Section -->
+    <section id="fostersSection" class="mb-5">
+        <h2 class="mb-4">Foster Management</h2>
+
+        <!-- Create Foster Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Add New Foster</h5>
+            </div>
+            <div class="card-body">
+                <form id="createFosterForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fosterName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="fosterName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fosterLastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="fosterLastName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fosterEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="fosterEmail" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fosterPhone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="fosterPhone" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fosterAddress" class="form-label">Address</label>
+                                <input type="text" class="form-control" id="fosterAddress" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fosterMaxPets" class="form-label">Max Pets</label>
+                                <input type="number" class="form-control" id="fosterMaxPets" min="1" max="5" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Foster</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- List Fosters -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Fosters List</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary">All Fosters</button>
+                        <button class="btn btn-outline-primary">Active</button>
+                        <button class="btn btn-outline-primary">Available</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Pets</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="fostersList">
+                        <!-- Fosters will be listed here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Response Section -->
+    <section id="responseSection" class="mb-5">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">API Response</h5>
+                <button class="btn btn-secondary btn-sm" onclick="clearResponse()">Clear</button>
+            </div>
+            <div class="card-body">
+                    <pre id="apiResponse" class="bg-light p-3 rounded" style="max-height: 300px; overflow-y: auto;">
+// API responses will appear here
+                    </pre>
+            </div>
+        </div>
+    </section>
 </div>
 
-<script>
-    // Since we're serving from the same origin, we can simplify the API_BASE_URL
-    const API_BASE_URL = '/api/v1';
-
-    // Tab Management
-    function showTab(tabName) {
-        // Hide all sections
-        document.querySelectorAll('.tab-content').forEach(section => {
-            section.style.display = 'none';
-        });
-
-        // Reset all tab buttons
-        document.querySelectorAll('button[id$="Tab"]').forEach(button => {
-            button.classList.remove('bg-blue-500');
-            button.classList.add('bg-gray-500');
-        });
-
-        // Show selected section
-        document.getElementById(`${tabName}Section`).style.display = 'block';
-
-        // Highlight selected tab
-        document.getElementById(`${tabName}Tab`).classList.remove('bg-gray-500');
-        document.getElementById(`${tabName}Tab`).classList.add('bg-blue-500');
-    }
-
-    <script>
-        const API_BASE_URL = 'http://localhost:8080/api/v1';
-
-        // Helper function to handle API responses
-        async function handleResponse(response) {
-        if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'An error occurred');
-    }
-        return response.json();
-    }
-
-        // Helper function to display results
-        function displayResult(elementId, data) {
-        const element = document.getElementById(elementId);
-        element.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
-    }
-
-        // Add Pet Form Handler
-        document.getElementById('addPetForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const petData = Object.fromEntries(formData.entries());
-
-        try {
-        const response = await fetch(`${API_BASE_URL}/pets`, {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json',
-    },
-        body: JSON.stringify(petData)
-    });
-        const result = await handleResponse(response);
-        displayResult('petsResult', result);
-        e.target.reset();
-    } catch (error) {
-        displayResult('petsResult', {error: error.message});
-    }
-    });
-
-        // Add Foster Form Handler
-        document.getElementById('addFosterForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const fosterData = Object.fromEntries(formData.entries());
-
-        try {
-        const response = await fetch(`${API_BASE_URL}/fosters`, {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json',
-    },
-        body: JSON.stringify(fosterData)
-    });
-        const result = await handleResponse(response);
-        displayResult('fostersResult', result);
-        e.target.reset();
-    } catch (error) {
-        displayResult('fostersResult', {error: error.message});
-    }
-    });
-
-        // Assign Pet Form Handler
-        document.getElementById('assignPetForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const {fosterId, petId} = Object.fromEntries(formData.entries());
-
-        try {
-        const response = await fetch(`${API_BASE_URL}/fosters/${fosterId}/pets/${petId}`, {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json',
-    }
-    });
-        const result = await handleResponse(response);
-        displayResult('assignmentResult', result);
-        e.target.reset();
-    } catch (error) {
-        displayResult('assignmentResult', {error: error.message});
-    }
-    });
-
-        // Get All Pets
-        async function getAllPets() {
-        try {
-        const response = await fetch(`${API_BASE_URL}/pets`);
-        const result = await handleResponse(response);
-        displayResult('petsResult', result);
-    } catch (error) {
-        displayResult('petsResult', {error: error.message});
-    }
-    }
-
-        // Get Available Pets
-        async function getAvailablePets() {
-        try {
-        const response = await fetch(`${API_BASE_URL}/pets/available`);
-        const result = await handleResponse(response);
-        displayResult('petsResult', result);
-    } catch (error) {
-        displayResult('petsResult', {error: error.message});
-    }
-    }
-
-        // Get Pets Needing Foster
-        async function getPetsNeedingFoster() {
-        try {
-        const response = await fetch(`${API_BASE_URL}/pets/needs-foster`);
-        const result = await handleResponse(response);
-        displayResult('petsResult', result);
-    } catch (error) {
-        displayResult('petsResult', {error: error.message});
-    }
-    }
-
-        // Get All Fosters
-        async function getAllFosters() {
-        try {
-        const response = await fetch(`${API_BASE_URL}/fosters`);
-        const result = await handleResponse(response);
-        displayResult('fostersResult', result);
-    } catch (error) {
-        displayResult('fostersResult', {error: error.message});
-    }
-    }
-
-        // Get Available Fosters
-        async function getAvailableFosters() {
-        try {
-        const response = await fetch(`${API_BASE_URL}/fosters/available`);
-        const result = await handleResponse(response);
-        displayResult('fostersResult', result);
-    } catch (error) {
-        displayResult('fostersResult', {error: error.message});
-    }
-    }
-</script>
+<!-- Bootstrap JS and dependencies -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script src="js/script.js"></script>
 </body>
 </html>
