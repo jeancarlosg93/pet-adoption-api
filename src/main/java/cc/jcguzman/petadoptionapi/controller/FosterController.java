@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/fosters")
@@ -55,7 +54,7 @@ public class FosterController {
 
     @Operation(
             summary = "Get foster by ID",
-            description = "Retrieves a specific foster caregiver by their UUID"
+            description = "Retrieves a specific foster caregiver by their ID"
     )
     @ApiResponses({
             @ApiResponse(
@@ -74,8 +73,8 @@ public class FosterController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<Foster> getFosterById(
-            @Parameter(description = "UUID of the foster to retrieve")
-            @PathVariable UUID id) {
+            @Parameter(description = "ID of the foster to retrieve")
+            @PathVariable Long id) {
         Foster foster = fosterService.getFosterById(id);
         return ResponseEntity.ok(foster);
     }
@@ -173,8 +172,8 @@ public class FosterController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<Foster> updateFoster(
-            @Parameter(description = "UUID of the foster to update")
-            @PathVariable UUID id,
+            @Parameter(description = "ID of the foster to update")
+            @PathVariable Long id,
             @Parameter(description = "Updated foster details", required = true)
             @Valid @RequestBody Foster fosterDetails) {
         Foster updatedFoster = fosterService.updateFoster(id, fosterDetails);
@@ -198,8 +197,8 @@ public class FosterController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deactivateFoster(
-            @Parameter(description = "UUID of the foster to deactivate")
-            @PathVariable UUID id) {
+            @Parameter(description = "ID of the foster to deactivate")
+            @PathVariable Long id) {
         fosterService.deactivateFoster(id);
         return ResponseEntity.noContent().build();
     }
@@ -230,10 +229,10 @@ public class FosterController {
     })
     @PostMapping("/{fosterId}/pets/{petId}")
     public ResponseEntity<Foster> assignPetToFoster(
-            @Parameter(description = "UUID of the foster")
-            @PathVariable UUID fosterId,
-            @Parameter(description = "UUID of the pet to assign")
-            @PathVariable UUID petId) {
+            @Parameter(description = "ID of the foster")
+            @PathVariable Long fosterId,
+            @Parameter(description = "ID of the pet to assign")
+            @PathVariable Long petId) {
         Foster updatedFoster = fosterService.assignPetToFoster(fosterId, petId);
         return ResponseEntity.ok(updatedFoster);
     }
@@ -259,10 +258,10 @@ public class FosterController {
     })
     @DeleteMapping("/{fosterId}/pets/{petId}")
     public ResponseEntity<Foster> unassignPetFromFoster(
-            @Parameter(description = "UUID of the foster")
-            @PathVariable UUID fosterId,
-            @Parameter(description = "UUID of the pet to remove")
-            @PathVariable UUID petId) {
+            @Parameter(description = "ID of the foster")
+            @PathVariable Long fosterId,
+            @Parameter(description = "ID of the pet to remove")
+            @PathVariable Long petId) {
         Foster updatedFoster = fosterService.unassignPetFromFoster(fosterId, petId);
         return ResponseEntity.ok(updatedFoster);
     }

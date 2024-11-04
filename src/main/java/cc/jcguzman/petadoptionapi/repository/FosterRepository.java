@@ -6,10 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.UUID;
 
 @Repository
-public interface FosterRepository extends JpaRepository<Foster, UUID> {
+public interface FosterRepository extends JpaRepository<Foster, Long> {
     List<Foster> findByActiveTrue();
 
     @Query("SELECT f FROM Foster f WHERE f.active = true AND SIZE(f.petsAssigned) < f.maxPets")

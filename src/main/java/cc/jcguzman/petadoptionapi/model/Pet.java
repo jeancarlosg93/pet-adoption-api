@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "pets")
@@ -16,9 +15,9 @@ import java.util.UUID;
 public class Pet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @JsonProperty("UUID")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
+    private Long id;
 
     @JsonProperty("Name")
     @Column(nullable = false)
@@ -55,9 +54,8 @@ public class Pet {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "foster_id")
-    @JsonProperty("Current_Foster")
+    @JsonIgnoreProperties({"petsAssigned", "hibernateLazyInitializer"})
     @ToString.Exclude
-    @JsonIdentityReference(alwaysAsId = true)
     private Foster currentFoster;
 
     @Enumerated(EnumType.STRING)
@@ -72,13 +70,20 @@ public class Pet {
     }
 
     @JsonProperty("Foster_Id")
-    public UUID getFosterId() {
+    public Long getFosterId() {
         return currentFoster != null ? currentFoster.getId() : null;
+    }
+
+    @JsonProperty("Foster_Name")
+    public String getFosterName() {
+        return currentFoster != null ? currentFoster.getName() + " " + currentFoster.getLastName() : null;
     }
 
     public void remove() {
         if (currentFoster != null) {
-            currentFoster.unassignPet(this);
+            Foster foster = currentFoster;
+            currentFoster = null;  // Break the bidirectional relationship
+            foster.unassignPet(this);
         }
         currentStatus = Status.REMOVED;
     }

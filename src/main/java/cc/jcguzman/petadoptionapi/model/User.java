@@ -7,17 +7,15 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @NoArgsConstructor
 @MappedSuperclass
 public abstract class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @JsonProperty("UUID")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
+    private Long id;
 
     @NotBlank(message = "Name is required")
     @JsonProperty("Name")

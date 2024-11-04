@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -21,7 +20,7 @@ public class PetService {
         return petRepository.findAll();
     }
 
-    public Pet getPetById(UUID id) {
+    public Pet getPetById(Long id) {
         return petRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pet not found with id: " + id));
     }
@@ -38,7 +37,7 @@ public class PetService {
         return petRepository.save(pet);
     }
 
-    public Pet updatePet(UUID id, Pet petDetails) {
+    public Pet updatePet(Long id, Pet petDetails) {
         Pet pet = getPetById(id);
 
         pet.setName(petDetails.getName());
@@ -54,7 +53,7 @@ public class PetService {
         return petRepository.save(pet);
     }
 
-    public void removePet(UUID id) {
+    public void removePet(Long id) {
         Pet pet = getPetById(id);
         pet.remove();
         petRepository.save(pet);
@@ -64,7 +63,7 @@ public class PetService {
         return petRepository.findByCurrentFosterIsNull();
     }
 
-    public Pet updatePetStatus(UUID id, Pet.Status newStatus) {
+    public Pet updatePetStatus(Long id, Pet.Status newStatus) {
         Pet pet = getPetById(id);
         pet.setCurrentStatus(newStatus);
         return petRepository.save(pet);

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -24,7 +23,7 @@ public class FosterService {
         return fosterRepository.findAll();
     }
 
-    public Foster getFosterById(UUID id) {
+    public Foster getFosterById(Long id) {
         return fosterRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Foster not found with id: " + id));
     }
@@ -44,7 +43,7 @@ public class FosterService {
         return fosterRepository.save(foster);
     }
 
-    public Foster updateFoster(UUID id, Foster fosterDetails) {
+    public Foster updateFoster(Long id, Foster fosterDetails) {
         Foster foster = getFosterById(id);
 
         foster.setName(fosterDetails.getName());
@@ -58,13 +57,13 @@ public class FosterService {
         return fosterRepository.save(foster);
     }
 
-    public void deactivateFoster(UUID id) {
+    public void deactivateFoster(Long id) {
         Foster foster = getFosterById(id);
         foster.setActive(false);
         fosterRepository.save(foster);
     }
 
-    public Foster assignPetToFoster(UUID fosterId, UUID petId) {
+    public Foster assignPetToFoster(Long fosterId, Long petId) {
         Foster foster = getFosterById(fosterId);
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new EntityNotFoundException("Pet not found with id: " + petId));
@@ -81,12 +80,17 @@ public class FosterService {
         return fosterRepository.save(foster);
     }
 
-    public Foster unassignPetFromFoster(UUID fosterId, UUID petId) {
+    public Foster unassignPetFromFoster(Long fosterId, Long petId) {
         Foster foster = getFosterById(fosterId);
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new EntityNotFoundException("Pet not found with id: " + petId));
 
+        if (pet.getCurrentFoster() == null || !pet.getCurrentFoster().getId().equals(fosterId)) {
+            throw new IllegalStateException("This pet is not assigned to this foster");
+        }
+
         foster.unassignPet(pet);
+        petRepository.save(pet);  // Save the pet to update its status
         return fosterRepository.save(foster);
     }
 }
