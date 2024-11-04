@@ -21,22 +21,27 @@ public abstract class User {
 
     @NotBlank(message = "Name is required")
     @JsonProperty("Name")
+    @Column(nullable = false)
     private String name;
 
     @NotBlank(message = "Last name is required")
     @JsonProperty("Last Name")
+    @Column(nullable = false)
     private String lastName;
 
     @NotBlank(message = "Phone is required")
     @JsonProperty("Phone")
+    @Column(nullable = false)
     private String phone;
 
     @NotBlank(message = "Address is required")
     @JsonProperty("Address")
+    @Column(nullable = false)
     private String address;
 
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
     @JsonProperty("Email")
+    @Column(nullable = false, unique = true)
     private String email;
 }

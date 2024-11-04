@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Table(name = "pets")
 @Data
 @NoArgsConstructor
 public class Pet {
@@ -20,9 +21,11 @@ public class Pet {
     private UUID id;
 
     @JsonProperty("Name")
+    @Column(nullable = false)
     private String name;
 
     @JsonProperty("Species")
+    @Column(nullable = false)
     private String species;
 
     @JsonProperty("Breed")
@@ -50,7 +53,7 @@ public class Pet {
     @JsonProperty("Adoption_Fee")
     private double adoptionFee;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "foster_id")
     @JsonProperty("Current_Foster")
     private Foster currentFoster;
