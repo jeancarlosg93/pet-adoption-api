@@ -1,6 +1,9 @@
 package cc.jcguzman.petadoptionapi.model;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -18,24 +21,30 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@JacksonXmlRootElement(localName = "Foster")
 public class Foster extends User {
 
     @JsonProperty("FosterSince")
+    @JacksonXmlProperty(localName = "FosterSince")
     @Column(nullable = false)
     private Instant fosterSince = Instant.now();
 
     @JsonProperty("Active")
+    @JacksonXmlProperty(localName = "Active")
     @Column(nullable = false)
     private boolean active = true;
 
     @Min(1)
     @Max(5)
     @JsonProperty("MaxPets")
+    @JacksonXmlProperty(localName = "MaxPets")
     @Column(nullable = false)
     private int maxPets = 3;
 
     @OneToMany(mappedBy = "currentFoster", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonProperty("AssignedPets")
+    @JacksonXmlElementWrapper(localName = "AssignedPets")
+    @JacksonXmlProperty(localName = "Pet")
     @ToString.Exclude
     @JsonIgnoreProperties("currentFoster")
     private List<Pet> petsAssigned = new ArrayList<>();
@@ -65,7 +74,7 @@ public class Foster extends User {
         pet.setCurrentFoster(this);
         pet.setCurrentStatus(Pet.Status.FOSTERED);
     }
-
+    @JacksonXmlProperty(localName = "CurrentPetCount")
     @JsonProperty("CurrentPetCount")
     public int getCurrentPetCount() {
         return petsAssigned.size();
