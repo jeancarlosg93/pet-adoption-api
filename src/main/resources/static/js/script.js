@@ -86,7 +86,7 @@ document.getElementById('generateKeyForm').addEventListener('submit', async (e) 
 
         currentApiKey = data.keyValue; // Store the API key
         displayResponse(data);
-        loadApiKeys(); // Refresh the keys list
+        await loadApiKeys(); // Refresh the keys list
 
         // Clear the form on success
         e.target.reset();
@@ -135,7 +135,7 @@ async function revokeKey(id) {
             method: 'DELETE',
             headers: getHeaders()
         });
-        loadApiKeys(); // Refresh the list
+        await loadApiKeys(); // Refresh the list
         displayResponse({ message: `API key ${id} revoked successfully` });
     } catch (error) {
         displayResponse({ error: error.message });
@@ -163,7 +163,7 @@ document.getElementById('createPetForm').addEventListener('submit', async (e) =>
         });
         const data = await response.json();
         displayResponse(data);
-        loadPets(); // Refresh the pets list
+        await loadPets(); // Refresh the pets list
         e.target.reset(); // Reset the form
     } catch (error) {
         displayResponse({ error: error.message });
@@ -243,7 +243,7 @@ async function removePet(id) {
             method: 'DELETE',
             headers: getHeaders()
         });
-        loadPets(); // Refresh the list
+        await loadPets(); // Refresh the list
         displayResponse({ message: `Pet ${id} removed successfully` });
     } catch (error) {
         displayResponse({ error: error.message });
@@ -268,55 +268,14 @@ document.getElementById('createFosterForm').addEventListener('submit', async (e)
         });
         const data = await response.json();
         displayResponse(data);
-        loadFosters(); // Refresh the fosters list
+        await loadFosters(); // Refresh the fosters list
         e.target.reset(); // Reset the form
     } catch (error) {
         displayResponse({ error: error.message });
     }
 });
 
-async function loadFosters(filter = 'all') {
-    try {
-        let url = `${API_BASE_URL}/fosters`;
-        if (filter === 'active') {
-            url = `${API_BASE_URL}/fosters/active`;
-        } else if (filter === 'available') {
-            url = `${API_BASE_URL}/fosters/available`;
-        }
 
-        const response = await fetch(url, {
-            headers: getHeaders()
-        });
-        const data = await response.json();
-        const tbody = document.getElementById('fostersList');
-        tbody.innerHTML = ''; // Clear existing rows
-
-        data.Fosters.forEach(foster => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${foster.id}</td>
-                <td>${foster.Name} ${foster['Last Name']}</td>
-                <td>${foster.Email}</td>
-                <td>${foster.Phone}</td>
-                <td>${foster.CurrentPetCount}/${foster.MaxPets}</td>
-                <td>
-                    <span class="badge ${foster.Active ? 'bg-success' : 'bg-danger'}">
-                        ${foster.Active ? 'Active' : 'Inactive'}
-                    </span>
-                </td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-primary" onclick="viewFoster(${foster.id})">View</button>
-                        <button class="btn btn-danger" onclick="deactivateFoster(${foster.id})">Deactivate</button>
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    } catch (error) {
-        displayResponse({ error: error.message });
-    }
-}
 
 async function viewFoster(id) {
     try {
@@ -338,7 +297,7 @@ async function deactivateFoster(id) {
             method: 'DELETE',
             headers: getHeaders()
         });
-        loadFosters(); // Refresh the list
+        await loadFosters(); // Refresh the list
         displayResponse({ message: `Foster ${id} deactivated successfully` });
     } catch (error) {
         displayResponse({ error: error.message });
@@ -369,3 +328,186 @@ document.addEventListener('DOMContentLoaded', () => {
         loadFosters();
     }
 });
+
+// Add these new functions to your existing script.js
+
+async function openAssignPetModal(fosterId) {
+    // Store the foster ID
+    document.getElementById('selectedFosterId').value = fosterId;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/pets/available`, {
+            headers: getHeaders()
+        });
+        const data = await response.json();
+
+        // Populate the select dropdown
+        const select = document.getElementById('petToAssign');
+        select.innerHTML = ''; // Clear existing options
+
+        data.pets.forEach(pet => {
+            const option = document.createElement('option');
+            option.value = pet.id;
+            option.textContent = `${pet.Name} (${pet.Species} - ${pet.Breed || 'Unknown breed'})`;
+            select.appendChild(option);
+        });
+
+        // Open the modal using Bootstrap
+        const modal = new bootstrap.Modal(document.getElementById('assignPetModal'));
+        modal.show();
+    } catch (error) {
+        displayResponse({ error: error.message });
+    }
+}
+
+async function unassignPetFromFoster(fosterId, petId) {
+    if (!confirm('Are you sure you want to remove this pet from the foster?')) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/fosters/${fosterId}/pets/${petId}`, {
+            method: 'DELETE',
+            headers: getHeaders()
+        });
+        const data = await response.json();
+        await loadFosters();
+        displayResponse(data);
+    } catch (error) {
+        displayResponse({ error: error.message });
+    }
+}
+
+document.getElementById('assignPetForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const fosterId = document.getElementById('selectedFosterId').value;
+    const petId = document.getElementById('petToAssign').value;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/fosters/${fosterId}/pets/${petId}`, {
+            method: 'POST',
+            headers: getHeaders()
+        });
+
+        const data = await response.json();
+
+        // Hide the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('assignPetModal'));
+        modal.hide();
+
+        // Refresh the fosters list and display response
+        await loadFosters();
+        displayResponse(data);
+    } catch (error) {
+        displayResponse({ error: error.message });
+    }
+});
+
+async function cleanupExpiredKeys() {
+    try {
+        await fetch(`${API_BASE_URL}/keys/cleanup`, {
+            method: 'POST',
+            headers: getHeaders()
+        });
+        await loadApiKeys();
+        displayResponse({ message: 'Expired keys cleaned up successfully' });
+    } catch (error) {
+        displayResponse({ error: error.message });
+    }
+}
+
+async function filterBySpecies() {
+    const species = document.getElementById('speciesFilter').value;
+    try {
+        if (species) {
+            const response = await fetch(`${API_BASE_URL}/pets/species/${species}`, {
+                headers: getHeaders()
+            });
+            const data = await response.json();
+            updatePetsList(data);
+        } else {
+            await loadPets();
+        }
+    } catch (error) {
+        displayResponse({ error: error.message });
+    }
+}
+
+// Update the loadFosters function to include the Assign Pet and Unassign Pet buttons
+// Update the foster row rendering function with a better assigned pets display
+function updateFosterRow(foster) {
+    return `
+        <td>${foster.id}</td>
+        <td>${foster.Name} ${foster['Last Name']}</td>
+        <td>${foster.Email}</td>
+        <td>${foster.Phone}</td>
+        <td>
+            <div class="d-flex flex-column">
+                <span class="mb-1">${foster.CurrentPetCount}/${foster.MaxPets}</span>
+                ${foster.AssignedPets && foster.AssignedPets.length > 0 ? `
+                    <div class="list-group list-group-flush small">
+                        ${foster.AssignedPets.map(pet => `
+                            <div class="list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fas fa-paw me-1"></i>
+                                    ${pet.Name} 
+                                    <small class="text-muted">(${pet.Species})</small>
+                                </span>
+                                <button class="btn btn-outline-danger btn-sm py-0 px-2" 
+                                    onclick="unassignPetFromFoster(${foster.id}, ${pet.id})"
+                                    title="Remove pet from foster">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : '<small class="text-muted">No pets assigned</small>'}
+            </div>
+        </td>
+        <td>
+            <span class="badge ${foster.Active ? 'bg-success' : 'bg-danger'}">
+                ${foster.Active ? 'Active' : 'Inactive'}
+            </span>
+        </td>
+        <td>
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-primary" onclick="viewFoster(${foster.id})">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn btn-success" onclick="openAssignPetModal(${foster.id})" 
+                    ${!foster.Active || foster.CurrentPetCount >= foster.MaxPets ? 'disabled' : ''}>
+                    <i class="fas fa-plus"></i> Assign
+                </button>
+                <button class="btn btn-danger" onclick="deactivateFoster(${foster.id})">
+                    <i class="fas fa-ban"></i> Deactivate
+                </button>
+            </div>
+        </td>
+    `;
+}
+
+// Update the loadFosters function
+async function loadFosters(filter = 'all') {
+    try {
+        let url = `${API_BASE_URL}/fosters`;
+        if (filter === 'active') {
+            url = `${API_BASE_URL}/fosters/active`;
+        } else if (filter === 'available') {
+            url = `${API_BASE_URL}/fosters/available`;
+        }
+
+        const response = await fetch(url, {
+            headers: getHeaders()
+        });
+        const data = await response.json();
+        const tbody = document.getElementById('fostersList');
+        tbody.innerHTML = ''; // Clear existing rows
+
+        data.Fosters.forEach(foster => {
+            const row = document.createElement('tr');
+            row.innerHTML = updateFosterRow(foster);
+            tbody.appendChild(row);
+        });
+    } catch (error) {
+        displayResponse({ error: error.message });
+    }
+}
