@@ -101,7 +101,7 @@ public class Pet {
     public void remove() {
         if (currentFoster != null) {
             Foster foster = currentFoster;
-            currentFoster = null;  // Break the bidirectional relationship
+            currentFoster = null;
             foster.unassignPet(this);
         }
         currentStatus = Status.REMOVED;

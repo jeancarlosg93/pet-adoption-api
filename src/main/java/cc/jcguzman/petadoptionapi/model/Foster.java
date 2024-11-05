@@ -65,7 +65,6 @@ public class Foster extends User {
             throw new IllegalStateException("Foster cannot accept more pets");
         }
 
-        // If pet already has a foster, remove it from that foster first
         if (pet.getCurrentFoster() != null && pet.getCurrentFoster() != this) {
             pet.getCurrentFoster().unassignPet(pet);
         }

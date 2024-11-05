@@ -90,7 +90,7 @@ public class FosterService {
         }
 
         foster.unassignPet(pet);
-        petRepository.save(pet);  // Save the pet to update its status
+        petRepository.save(pet);
         return fosterRepository.save(foster);
     }
 }
